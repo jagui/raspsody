@@ -3,10 +3,12 @@ set -x #echo on
 set -e #stop on errors
 
 # Working directories
+basedir=`pwd`
 tools="tools"
 pjproject="trunk"
 includes="includes"
-basedir=`pwd`
+prefix="/usr/local"
+install="install"
 
 #Cross compiler toolchain
 export AR=$basedir/$tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-ar
@@ -69,15 +71,15 @@ fi
 # Build ALSA
 cd $basedir/$includes/$alsalib
 export CFLAGS="-I$basedir/$includes/$python/usr/include"
-./configure --host=arm-linux-gnueabihf --prefix=$basedir/$includes/$alsalib/output
+./configure --host=arm-linux-gnueabihf --prefix=$prefix
 make
-make install
+make DESTDIR=$basedir/$install install
 
 # Configure and build pjproject
 cd $basedir/$pjproject
-export CFLAGS="-I$basedir/$includes/$alsalib/output/include"
-export LDFLAGS="$LDFLAGS -L$basedir/$includes/$alsalib/output/lib"
-./aconfigure --host=arm-linux-gnueabihf --disable-video --disable-libwebrtc --prefix=$basedir/$pjproject/output
+export CFLAGS="-I$basedir/$install$prefix/include"
+export LDFLAGS="$LDFLAGS -L$basedir/$install$prefix/lib"
+./aconfigure --host=arm-linux-gnueabihf --disable-video --disable-libwebrtc --prefix=$prefix
 make dep
 make
-make install
+make DESTDIR=$basedir/$install install
