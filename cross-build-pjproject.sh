@@ -11,12 +11,12 @@ prefix="/usr/local"
 install="install"
 
 #Cross compiler toolchain
-export AR=$basedir/$tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-ar
-export CC=$basedir/$tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-gcc
-export CXX=$basedir/$tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-c++
-export LD=$basedir/$tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-gcc
-export CROSS_COMPILE=$basedir/$tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-gcc
-export LDFLAGS="-L$basedir/$tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/lib/gcc/arm-linux-gnueabihf/4.8.3  -L$basedir/$tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/lib -ldl -lc"
+export AR=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-ar
+export CC=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
+export CXX=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-c++
+export LD=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
+export CROSS_COMPILE=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
+export LDFLAGS="-L$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/4.8.3  -L$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/lib -ldl -lc"
 
 # Get the cross compiling tools
 if [ ! -d "$tools" ]; then
