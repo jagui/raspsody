@@ -9,10 +9,6 @@ Summary of what the script does:
 * Defines CC, CXX, etc for autoconf
 * Gets the prebuilt cross build tools from the raspberrypi tools repo (thanks pals!)
 * svn checkout of pjproject's trunk branch
-* builds ALSA
-  - Downloads python-dev package from debian (required for ALSA)
-  - Downloads ALSA lib (choose your version)
-  - Builds ALSA
 * Builds pjproject disabling video (not needed) and webrtc (won't work on ARM)
 
 Once the build is finished, copy all the contents of the install folder to the destination machine (install/usr/local --> /usr/local)
