@@ -9,19 +9,52 @@ Summary of what the script does:
 * Defines CC, CXX, etc for autoconf
 * Gets the prebuilt cross build tools from the raspberrypi tools repo (thanks pals!)
 * svn checkout of pjproject's trunk branch
-* builds ALSA
-  - Downloads python-dev package from debian (required for ALSA)
-  - Downloads ALSA lib (choose your version)
-  - Builds ALSA
+* fetches ALSA headers and binaries for the target platform (choose the version that's installed in the raspi, as of now, 1.1.3)
 * Builds pjproject disabling video (not needed) and webrtc (won't work on ARM)
 
-Once the build is finished, copy all the contents of the install folder to the destination machine (install/usr/local --> /usr/local)
+## Configuring sound in the Pi
 
-Get started with pjsua by copying the trunk/pjsip-apps/bin/pjsua-arm-unknown-linux-gnueabihf app to your pi and invoke it with
+by default there's no input device, create a dummy one:
 
-```./pjsua-arm-unknown-linux-gnueabihf --config-file ./pjsua.cfg```
+`sudo modprobe snd-dummy`
 
-Where the config file should be something along these lines:
+make sure the device is loaded upon reboot,
+
+`sudo nano /etc/modules`
+
+>\# /etc/modules: kernel modules to load at boot time.  
+ \#  
+ \# This file contains the names of kernel modules that should be loaded  
+ \# at boot time, one per line. Lines beginning with "#" are ignored.  
+ \# Parameters can be specified after the module name.  
+  snd-bcm2835  
+  snd-dummy
+
+## Test it
+Get started with pjsua by copying the pjproject/pjsip-apps/bin/pjsua-arm-unknown-linux-gnueabihf and pjproject/pjsip-apps/bin/pjsystest-arm-unknown-linux-gnueabihf apps to your pi.
+
+Get the list of devices by running pjsystest-arm-unknown-linux-gnueabihf
+```
+11:29:55.386      systest.c  Running Audio Device List  
+Audio Device List  
+Found 14 devices  
+  0: ALSA [default:CARD=ALSA] (0/1)  
+  1: ALSA [sysdefault:CARD=ALSA] (0/1)  
+  2: ALSA [dmix:CARD=ALSA,DEV=0] (0/1)  
+  3: ALSA [dmix:CARD=ALSA,DEV=1] (0/1)  
+  4: ALSA [hw:CARD=ALSA,DEV=0] (0/1)  
+  5: ALSA [hw:CARD=ALSA,DEV=1] (0/1)  
+  6: ALSA [plughw:CARD=ALSA,DEV=0] (0/1)  
+  7: ALSA [plughw:CARD=ALSA,DEV=1] (0/1)  
+  8: ALSA [default:CARD=Dummy] (1/1)  
+  9: ALSA [sysdefault:CARD=Dummy] (1/1)  
+ 10: ALSA [dmix:CARD=Dummy,DEV=0] (0/1)  
+ 11: ALSA [dsnoop:CARD=Dummy,DEV=0] (1/0)  
+ 12: ALSA [hw:CARD=Dummy,DEV=0] (1/1)  
+ 13: ALSA [plughw:CARD=Dummy,DEV=0] (1/1)  
+```
+
+Write a config file for pjsua along these lines. Note that the number for `--capture-dev` and `--playback-dev` is taken from the audio device list just mentioned.
 
 ```
 #
@@ -51,7 +84,10 @@ Where the config file should be something along these lines:
 #
 # Media settings:
 #
---snd-auto-close 1
+#--capture-dev=8
+--playback-dev=0
+#--null-audio
+#--snd-auto-close 1
 #using default --clock-rate 16000
 #using default --quality 8
 #using default --ec-tail 200
@@ -72,4 +108,8 @@ Where the config file should be something along these lines:
 #
 --use-timer 1
 
+```
+Run pjsua
+```
+./pjsua-arm-unknown-linux-gnueabihf --config-file ./pjsua.cfg
 ```
