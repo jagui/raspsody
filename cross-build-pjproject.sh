@@ -2,21 +2,23 @@
 set -x #echo on
 set -e #stop on errors
 
+#set host
+host=arm-linux-gnueabihf
+
 # Working directories
 basedir=`pwd`
 tools="tools"
-pjproject="trunk"
-includes="includes"
-prefix="/usr/local"
-install="install"
+pjproject="pjproject"
+thirdparty="thirdparty"
+prefix="/usr"
 
 #Cross compiler toolchain
-export AR=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-ar
-export CC=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
-export CXX=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-c++
-export LD=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
-export CROSS_COMPILE=$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
-export LDFLAGS="-L$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/4.8.3  -L$basedir/$tools/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/lib -ldl -lc"
+export AR=$basedir/$tools/arm-bcm2708/$host/bin/$host-ar
+export CC=$basedir/$tools/arm-bcm2708/$host/bin/$host-gcc
+export CXX=$basedir/$tools/arm-bcm2708/$host/bin/$host-c++
+export LD=$basedir/$tools/arm-bcm2708/$host/bin/$host-gcc
+export CROSS_COMPILE=$basedir/$tools/arm-bcm2708/$host/bin/$host-gcc
+export LDFLAGS="-L$basedir/$tools/arm-bcm2708/$host/lib/gcc/$host/4.8.3  -L$basedir/$tools/arm-bcm2708/$host/$host/lib -ldl -lc"
 
 # Get the cross compiling tools
 if [ ! -d "$tools" ]; then
@@ -30,56 +32,53 @@ fi
 # Get the latest stable pjproject
 if [ ! -d "$pjproject" ]; then
   echo "checking out pjproject trunk"
-  echo "svn checkout http://svn.pjsip.org/repos/pjproject/trunk/"
-  svn checkout http://svn.pjsip.org/repos/pjproject/trunk/
+  echo "svn checkout http://svn.pjsip.org/repos/pjproject/trunk/ $pjproject"
+  svn checkout http://svn.pjsip.org/repos/pjproject/trunk/ $pjproject
 else
   echo "pjproject trunk already present, skip checking out"
 fi
 
 # Get additional headers
-if [ ! -d "$includes" ]; then
-  echo "creating includes folder"
-  mkdir $includes
+if [ ! -d "$thirdparty" ]; then
+  echo "creating thirdparty folder"
+  mkdir $thirdparty
 fi
 
-# Get python headers (required by ALSA)
-python="libpython2.7-dev_2.7.9-2+deb8u1_armhf"
-if [ ! -d "$includes/$python" ]; then
-  echo "downloading Python headers"
-  cd $basedir/$includes
-  wget http://http.us.debian.org/debian/pool/main/p/python2.7/$python.deb
-  dpkg -x $python.deb $python
-  rm $python.deb
+# Get libasound2
+libasound2="libasound2_1.1.3-5_armhf"
+if [ ! -d "$thirdparty/$libasound2" ]; then
+  echo "downloading libasound2"
+  cd $basedir/$thirdparty
+  wget http://http.us.debian.org/debian/pool/main/a/alsa-lib/$libasound2.deb
+  dpkg -x $libasound2.deb $libasound2
+  rm $libasound2.deb
+  # So that pjproject can find -lasound
+  cd $libasound2/usr/lib/$host
+  ln -sf libasound.so.2.0.0 libasound.so
   cd $basedir
 else
-  echo "python headers already present, skip downloading"
+  echo "libasound2 already present, skip downloading"
 fi
 
-# Get ALSA lib
-alsalib="alsa-lib-1.1.5"
-if [ ! -d "$includes/$alsalib" ]; then
-  echo "downloading ALSA lib"
-  cd $basedir/$includes
-  wget ftp://ftp.alsa-project.org/pub/lib/$alsalib.tar.bz2
-  tar xvf $alsalib.tar.bz2
-  rm $alsalib.tar.bz2
+# Get libasound2-dev headers (required by ALSA)
+libasound2dev="libasound2-dev_1.1.3-5_armhf"
+if [ ! -d "$thirdparty/$libasound2dev" ]; then
+  echo "downloading libasound2-dev"
+  cd $basedir/$thirdparty
+  wget http://http.us.debian.org/debian/pool/main/a/alsa-lib/$libasound2dev.deb
+  dpkg -x $libasound2dev.deb $libasound2dev
+  rm $libasound2dev.deb
   cd $basedir
 else
-  echo "ALSA lib already present, skip downloading"
+  echo "libasound2-dev already present, skip downloading"
 fi
 
-# Build ALSA
-cd $basedir/$includes/$alsalib
-export CFLAGS="-I$basedir/$includes/$python/usr/include"
-./configure --host=arm-linux-gnueabihf --prefix=$prefix
-make
-make DESTDIR=$basedir/$install install
+
 
 # Configure and build pjproject
 cd $basedir/$pjproject
-export CFLAGS="-I$basedir/$install$prefix/include"
-export LDFLAGS="$LDFLAGS -L$basedir/$install$prefix/lib"
-./aconfigure --host=arm-linux-gnueabihf --disable-video --disable-libwebrtc --prefix=$prefix
+export CFLAGS="-I$basedir/$thirdparty/$libasound2dev/usr/include"
+export LDFLAGS="$LDFLAGS -L$basedir/$thirdparty/$libasound2/usr/lib/$host"
+./aconfigure --host=$host --disable-video --disable-libwebrtc --prefix=$prefix
 make dep
 make
-make DESTDIR=$basedir/$install install
