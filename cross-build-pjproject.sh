@@ -73,8 +73,6 @@ else
   echo "libasound2-dev already present, skip downloading"
 fi
 
-
-
 # Configure and build pjproject
 cd $basedir/$pjproject
 export CFLAGS="-I$basedir/$thirdparty/$libasound2dev/usr/include"

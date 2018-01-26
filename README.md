@@ -113,3 +113,12 @@ Run pjsua
 ```
 ./pjsua-arm-unknown-linux-gnueabihf --config-file ./pjsua.cfg
 ```
+
+
+## Freeswitch
+```
+git clone https://freeswitch.org/stash/scm/fs/freeswitch.git
+```
+
+See
+https://wiki.freeswitch.org/wiki/Download_%26_Installation_Guide#Cross_Compiling_for_ARM_on_Linux
