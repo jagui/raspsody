@@ -18,7 +18,7 @@ export CC=$basedir/$tools/arm-bcm2708/$host/bin/$host-gcc
 export CXX=$basedir/$tools/arm-bcm2708/$host/bin/$host-c++
 export LD=$basedir/$tools/arm-bcm2708/$host/bin/$host-gcc
 export CROSS_COMPILE=$basedir/$tools/arm-bcm2708/$host/bin/$host-gcc
-export LDFLAGS="-L$basedir/$tools/arm-bcm2708/$host/lib/gcc/$host/4.8.3  -L$basedir/$tools/arm-bcm2708/$host/$host/lib -ldl -lc"
+export LDFLAGS="-L$basedir/$tools/arm-bcm2708/$host/lib/gcc/$host/4.9.3 -L$basedir/$tools/arm-bcm2708/$host/$host/lib -ldl -lc"
 
 # Get the cross compiling tools
 if [ ! -d "$tools" ]; then
