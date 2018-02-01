@@ -16,6 +16,7 @@ Summary of what the script does:
 
 by default there's no input device, create a dummy one:
 
+
 `sudo modprobe snd-dummy`
 
 make sure the device is loaded upon reboot,
@@ -27,7 +28,6 @@ make sure the device is loaded upon reboot,
  \# This file contains the names of kernel modules that should be loaded  
  \# at boot time, one per line. Lines beginning with "#" are ignored.  
  \# Parameters can be specified after the module name.  
-  snd-bcm2835  
   snd-dummy
 
 ## Test it
