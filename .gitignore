@@ -1,6 +1,5 @@
 pjproject
 tools
-thirdparty
 pjsua.cfg
 freeswitch
-usr
+chroot

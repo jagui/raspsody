@@ -122,3 +122,18 @@ git clone https://freeswitch.org/stash/scm/fs/freeswitch.git
 
 See
 https://wiki.freeswitch.org/wiki/Download_%26_Installation_Guide#Cross_Compiling_for_ARM_on_Linux
+
+
+
+## Chroot
+
+if your drive is encrypted
+mount -i -o remount,exec,dev /home/user
+
+mkdir chroot
+sudo debootstrap stretch chroot http://ftp.es.debian.org/debian
+
+
+
+sudo chroot chroot
+dpkg --add-architecture armhf
