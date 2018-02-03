@@ -1,4 +1,7 @@
-pjproject
-tools
-thirdparty
+pjproject/
+tools/
+thirdparty/
 pjsua.cfg
+usr/
+etc/
+lib/

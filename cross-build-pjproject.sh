@@ -12,6 +12,9 @@ pjproject="pjproject"
 thirdparty="thirdparty"
 prefix="/usr"
 
+#Build debuggable pjproject libs
+#export CFLAGS="-d"
+
 #Cross compiler toolchain
 export AR=$basedir/$tools/arm-bcm2708/$host/bin/$host-ar
 export CC=$basedir/$tools/arm-bcm2708/$host/bin/$host-gcc
@@ -45,26 +48,24 @@ if [ ! -d "$thirdparty" ]; then
 fi
 
 # Get libasound2
-libasound2="libasound2_1.1.3-5_armhf"
-if [ ! -d "$thirdparty/$libasound2" ]; then
+libasound2="libasound2_1.1.3-5_armhf.deb"
+if [ ! -e "$thirdparty/$libasound2" ]; then
   echo "downloading libasound2"
   cd $basedir/$thirdparty
-  wget http://http.us.debian.org/debian/pool/main/a/alsa-lib/$libasound2.deb
-  dpkg -x $libasound2.deb ../.
-  rm $libasound2.deb
+  wget http://http.us.debian.org/debian/pool/main/a/alsa-lib/$libasound2
+  dpkg -x $libasound2  ../.
   cd $basedir
 else
   echo "libasound2 already present, skip downloading"
 fi
 
 # Get libasound2-dev headers (required by ALSA)
-libasound2dev="libasound2-dev_1.1.3-5_armhf"
-if [ ! -d "$thirdparty/$libasound2dev" ]; then
+libasound2dev="libasound2-dev_1.1.3-5_armhf.deb"
+if [ ! -e "$thirdparty/$libasound2dev" ]; then
   echo "downloading libasound2-dev"
   cd $basedir/$thirdparty
-  wget http://http.us.debian.org/debian/pool/main/a/alsa-lib/$libasound2dev.deb
-  dpkg -x $libasound2dev.deb ../.
-  rm $libasound2dev.deb
+  wget http://http.us.debian.org/debian/pool/main/a/alsa-lib/$libasound2dev
+  dpkg -x $libasound2dev ../.
   cd $basedir
 else
   echo "libasound2-dev already present, skip downloading"
@@ -72,8 +73,8 @@ fi
 
 # Configure and build pjproject
 cd $basedir/$pjproject
-export CFLAGS="-I$basedir/usr/include"
-export LDFLAGS="$LDFLAGS -L$basedir/usr/lib/$host"
+export CFLAGS="-I$basedir/usr/include $CFLAGS"
+export LDFLAGS="-L$basedir/usr/lib/$host $LDFLAGS "
 ./aconfigure --host=$host --disable-video --disable-libwebrtc --prefix=$prefix
 make dep
 make
