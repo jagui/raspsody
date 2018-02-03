@@ -46,6 +46,16 @@
 #define SIP_USER	"alice"
 #define SIP_PASSWD	"secret"
 
+pj_str_t contact = { "Contact", 7 };
+pj_str_t diversion = { "Diversion", 9 };
+pjsua_msg_data msg_data;
+pj_str_t contact_value;
+pj_str_t diversion_value;
+pj_str_t reason;
+pjsip_generic_string_hdr hcontact;
+pjsip_generic_string_hdr hdiversion;
+pj_str_t reason = { "follow-me", 9 };
+int done = 0;
 /* Callback called by the library upon receiving incoming call */
 static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id,
 		pjsip_rx_data *rdata) {
@@ -59,7 +69,18 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id,
 	PJ_LOG(3,
 			(THIS_FILE, "Incoming call from %.*s!!", (int)ci.remote_info.slen, ci.remote_info.ptr));
 
-	/* Automatically answer incoming calls with 200/OK */
+	pjsua_msg_data_init(&msg_data);
+
+	contact_value = pj_str("<sip:686978105@telefonica.net>");
+	pjsip_generic_string_hdr_init2(&hcontact, &contact, &contact_value);
+	pj_list_push_back(&msg_data.hdr_list, &hcontact);
+
+	diversion_value = pj_str(
+					"<sip:917297888@10.22.225.111:5060>;reason=\"deflection\";screen=\"yes\";privacy=\"off\"");
+	pjsip_generic_string_hdr_init2(&hdiversion, &diversion, &diversion_value);
+	pj_list_push_back(&msg_data.hdr_list, &hdiversion);
+
+	/* Automatically answer incoming calls with 302/Moved Permanently*/
 	pjsua_call_answer(call_id, 200, NULL, NULL);
 }
 
@@ -72,6 +93,10 @@ static void on_call_state(pjsua_call_id call_id, pjsip_event *e) {
 	pjsua_call_get_info(call_id, &ci);
 	PJ_LOG(3,
 			(THIS_FILE, "Call %d state=%.*s", call_id, (int)ci.state_text.slen, ci.state_text.ptr));
+	if (ci.state == PJSIP_INV_STATE_CONFIRMED && !done) {
+		pjsua_call_xfer(call_id, &contact_value, NULL);
+		done = 1;
+	}
 }
 
 /* Callback called by the library when call's media state has changed */
@@ -126,7 +151,8 @@ int main(int argc, char *argv[]) {
 		cfg.cb.on_call_state = &on_call_state;
 
 		pjsua_logging_config_default(&log_cfg);
-		log_cfg.console_level = 4;
+		log_cfg.console_level = 5;
+		log_cfg.level = 5;
 
 		status = pjsua_init(&cfg, &log_cfg, NULL);
 		if (status != PJ_SUCCESS)
